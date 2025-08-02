@@ -31,7 +31,8 @@ const router = express.Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Associacao'
- */
+*/
+router.get('/', getAssociacoes);
 
 /**
  * @swagger
@@ -55,7 +56,8 @@ const router = express.Router();
  *               $ref: '#/components/schemas/Associacao'
  *       404:
  *         description: Associação não encontrada
- */
+*/
+router.get('/:id', getAssociacaoById);
 
 /**
  * @swagger
@@ -83,7 +85,8 @@ const router = express.Router();
  *         description: Dados inválidos
  *       404:
  *         description: Associação não encontrada
- */
+*/
+router.put('/:id', atualizarAssociacao);
 
 /**
  * @swagger
@@ -103,7 +106,8 @@ const router = express.Router();
  *         description: Associação deletada com sucesso
  *       404:
  *         description: Associação não encontrada
- */
+*/
+router.delete('/:id', deletarAssociacao);
 
 /**
  * @swagger
@@ -127,11 +131,6 @@ const router = express.Router();
  *       400:
  *         description: Erro nos dados enviados
  */
-
-router.get('/', getAssociacoes);
-router.get('/:id', getAssociacaoById);
-router.put('/:id', atualizarAssociacao);
-router.delete('/:id', deletarAssociacao);
 router.post('/cadastro', criarAssociacao);
 
 export default router;

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAtendeUm } from '../../controllers/antende_um';
+import { getAtendeUm } from '../../controllers/atende_um';
 
 const router = express.Router();
 
