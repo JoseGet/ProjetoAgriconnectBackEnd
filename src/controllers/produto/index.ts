@@ -37,23 +37,34 @@ export const getProdutoById = async (req: Request, res: Response) => {
 };
 
 export const createProduto = async (req: Request, res: Response) => {
-  const { nome, categoria, preco, qntd, vendedorId, pedidoId}: 
-  { nome: string, categoria: string, unidade: string, preco: number, qntd: number, vendedorId: string, pedidoId: number} = req.body;
+  const { nome, preco, descricao, image, preco_promocao, is_promocao, fk_vendedor, id_pedido, id_categoria}: 
+  { nome: string;
+  descricao: string;
+  image: string;
+  is_promocao: boolean;
+  preco: number;
+  preco_promocao?: number;
+  fk_vendedor: string;
+  id_pedido: number;
+  id_categoria: string;} = req.body;
   try {
     const result: produto = await prisma.produto.create({
       data: {
         nome,
-        categoria,
-        // unidade, // Removed as it does not exist in the Prisma schema
+        descricao,
+        image,
+        is_promocao,
         preco,
-        qntd, // Provide a default value or retrieve it from req.body
-        data_coleta: new Date(), // Provide a default value or retrieve it from req.body
-        vendedor: {
-          connect: { id_vendedor: vendedorId }, 
-        },
+        preco_promocao,
         pedido: {
-          connect: { pedido_id: pedidoId }, 
+          connect: { pedido_id: id_pedido }, 
         },
+        vendedor: {
+          connect: { id_vendedor: fk_vendedor }, 
+        },
+        categoria: {
+          connect: { id_categoria: id_categoria }
+        }
       },
     });
     res.status(201).json(result);
@@ -64,17 +75,39 @@ export const createProduto = async (req: Request, res: Response) => {
 };
 
 export const updateProduto = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
-  const { nome, categoria, preco }: { nome: string, categoria: string, unidade: string, preco: number } = req.body;
+
+  const id = req.params.id;
+
+  const {
+    nome,
+    descricao,
+    image,
+    is_promocao,
+    preco,
+    preco_promocao,
+    id_categoria,
+  }: {
+    nome?: string;
+    descricao?: string;
+    image?: string;
+    is_promocao?: boolean;
+    preco?: number;
+    preco_promocao?: number;
+    id_categoria?: string;
+  } = req.body;
   try {
     const result: produto | null = await prisma.produto.update({
       where: {
-        id_produto: id.toString(),
+        id_produto: id,
       },
       data: {
         nome,
-        categoria,
+        descricao,
+        image,
+        is_promocao,
         preco,
+        preco_promocao,
+        id_categoria,
       },
     });
 
