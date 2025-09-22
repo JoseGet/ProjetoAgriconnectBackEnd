@@ -5,6 +5,8 @@ import {
   criarCliente,
   atualizarCliente,
   deletarCliente,
+  adicionarFavorito,
+  listarFavoritos
 } from '../../controllers/cliente';
 
 const router = express.Router();
@@ -169,5 +171,9 @@ router.put('/:cpf', atualizarCliente);
  *         description: Cliente não encontrado
  */
 router.delete('/:cpf', deletarCliente);
+
+router.put("/:cpf/favoritos", adicionarFavorito);
+
+router.get("/:cpf/favoritos", listarFavoritos)
 
 export default router;

@@ -37,34 +37,44 @@ export const getProdutoById = async (req: Request, res: Response) => {
 };
 
 export const createProduto = async (req: Request, res: Response) => {
-  const { nome, preco, descricao, image, preco_promocao, is_promocao, fk_vendedor, id_pedido, id_categoria}: 
-  { nome: string;
+  const { 
+    nome,
+    preco, 
+    descricao, 
+    disponivel, 
+    image, 
+    preco_promocao, 
+    is_promocao,
+    fk_vendedor, 
+    id_categoria,
+  }: 
+  { 
+  nome: string;
   descricao: string;
+  disponivel: boolean;
   image: string;
   is_promocao: boolean;
   preco: number;
   preco_promocao?: number;
   fk_vendedor: string;
-  id_pedido: number;
-  id_categoria: string;} = req.body;
+  id_categoria: string;
+} = req.body;
   try {
     const result: produto = await prisma.produto.create({
       data: {
         nome,
         descricao,
+        disponivel,
         image,
         is_promocao,
         preco,
         preco_promocao,
-        pedido: {
-          connect: { pedido_id: id_pedido }, 
-        },
         vendedor: {
           connect: { id_vendedor: fk_vendedor }, 
         },
         categoria: {
           connect: { id_categoria: id_categoria }
-        }
+        },
       },
     });
     res.status(201).json(result);
@@ -82,6 +92,7 @@ export const updateProduto = async (req: Request, res: Response) => {
     nome,
     descricao,
     image,
+    disponivel,
     is_promocao,
     preco,
     preco_promocao,
@@ -90,6 +101,7 @@ export const updateProduto = async (req: Request, res: Response) => {
     nome?: string;
     descricao?: string;
     image?: string;
+    disponivel: boolean;
     is_promocao?: boolean;
     preco?: number;
     preco_promocao?: number;
@@ -104,6 +116,7 @@ export const updateProduto = async (req: Request, res: Response) => {
         nome,
         descricao,
         image,
+        disponivel,
         is_promocao,
         preco,
         preco_promocao,

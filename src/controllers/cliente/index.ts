@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../../config/dbConfig'; // PrismaClient instanciado
 import { cliente } from '@prisma/client'; // Importando o tipo cliente do Prisma
+import { where } from 'sequelize';
 
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -101,10 +102,74 @@ export const deletarCliente = async (req: Request, res: Response): Promise<void>
   }
 };
 
+export const adicionarFavorito = async (req: Request, res: Response): Promise<void> => {
+
+  const { cliente_cpf } = req.params
+  const { produto_id } = req.body;
+
+  try {
+    const clienteAtualizado = await prisma.cliente.update({
+      where: { cpf : cliente_cpf },
+      data: {
+        favoritos: {
+          connect: { 
+            cliente_cpf_produto_id: {
+                cliente_cpf: cliente_cpf,
+                produto_id: produto_id
+            }
+          },
+        },
+      },
+      include: {
+        favoritos: true
+      }
+    })
+
+    if(clienteAtualizado) {
+      res.status(200).json(clienteAtualizado.favoritos)
+    }
+
+  } catch (error) {
+    console.error('Erro ao adicionar produto favorito', error);
+    res.status(500).json({ error: 'Erro ao adicionar produto favorito.' });
+  }
+
+}
+
+export const listarFavoritos = async (req: Request, res: Response): Promise<void> => {
+  const { cliente_cpf } = req.params;
+  try {
+    const clienteComFavoritos = await prisma.cliente.findUnique({
+      where: {cpf: cliente_cpf},
+      include: {
+        favoritos: {
+          select: {
+            produto: true
+          }
+        }
+      }
+    })
+
+    if(!clienteComFavoritos) {
+      res.status(404).json({ message: "Cliente nao encontrado"})
+    }
+
+    const produtosFavoritos = clienteComFavoritos?.favoritos.map(fav => fav.produto)
+    res.status(200).json(produtosFavoritos);
+
+  } catch(error) {
+    console.error('Erro ao listar favoritos: ', error)
+    res.status(500).json({ message: 'Erro ao listar favoritos. '})
+  }
+
+}
+
 export default {
   listarClientes,
   listarClientesPorId,
   criarCliente,
   atualizarCliente,
   deletarCliente,
+  adicionarFavorito,
+  listarFavoritos
 };

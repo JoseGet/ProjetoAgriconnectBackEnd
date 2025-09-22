@@ -11,7 +11,6 @@ export const getPedidos = async (req: Request, res: Response): Promise<void> => 
         cliente: true,
         feira: true,
         atende_um: true,
-        produto: true
       }
     });
     res.json(pedidos);
@@ -31,7 +30,6 @@ export const getPedidoById = async (req: Request, res: Response): Promise<void> 
         cliente: true,
         feira: true,
         atende_um: true,
-        produto: true
       }
     });
 
@@ -58,12 +56,9 @@ export const createPedido = async (req: Request, res: Response): Promise<void> =
         data_pedido: new Date(data_pedido),
         fk_feira,
         fk_cliente,
-        produto: {
-          connect: produtos.map((produtoId: number) => ({ id_produto: produtoId }))
-        }
       },
       include: {
-        produto: true
+        
       }
     });
 
@@ -86,12 +81,8 @@ export const updatePedido = async (req: Request, res: Response): Promise<void> =
         data_pedido: new Date(data_pedido),
         fk_feira,
         fk_cliente,
-        produto: {
-          set: produtos.map((produtoId: number) => ({ id_produto: produtoId }))
-        }
       },
       include: {
-        produto: true
       }
     });
 
