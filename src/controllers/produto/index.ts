@@ -1,12 +1,17 @@
 import { Request, Response } from 'express';
 import prisma from '../../config/dbConfig'; // Importe o cliente Prisma corretamente
 import { produto } from '@prisma/client'; // Importando o tipo 'produto' gerado pelo Prisma
+import { skip } from '@prisma/client/runtime/library';
+import { takeCoverage } from 'v8';
 
 
 export const getProdutos = async (req: Request, res: Response) => {
   try {
     // Utilizando o Prisma com a tipagem explícita
-    const result: produto[] = await prisma.produto.findMany();
+    const result: produto[] = await prisma.produto.findMany({
+      take: parseInt(req.params.limit),
+      skip: parseInt(req.params.limit),
+    });
     console.log("aqui no produtos");
     res.json(result);
   } catch (error) {
