@@ -63,7 +63,7 @@ const upload = multer({storage: multer.memoryStorage()})
  *                     format: uuid
  *                     example: "550e8400-e29b-41d4-a716-446655440111"
  */
-router.get('/produto?limit=20&offset=0', getProdutos);
+router.get('/', getProdutos);
 
 /**
  * @swagger

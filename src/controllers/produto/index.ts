@@ -8,11 +8,18 @@ import { CreateProdutoInput } from '../../schemas/produto';
 
 
 export const getProdutos = async (req: Request, res: Response) => {
+
+  const limit = parseInt(req.query.limit as string, 10);
+  const skip = parseInt(req.query.skip as string, 20)
+
+  const takeValue = isNaN(limit) || limit <= 0 ? 10 : limit; 
+  const skipValue = isNaN(skip) || skip < 0 ? 0 : skip;
+
   try {
     // Utilizando o Prisma com a tipagem explícita
     const result: produto[] = await prisma.produto.findMany({
-      take: parseInt(req.params.limit),
-      skip: parseInt(req.params.limit),
+      take: takeValue,
+      skip: skipValue,
     });
     console.log("aqui no produtos");
     res.json(result);
@@ -23,12 +30,12 @@ export const getProdutos = async (req: Request, res: Response) => {
 };
 
 export const getProdutoById = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id : string = req.params.id; ;
   try {
     // Tipando a resposta como 'produto'
     const result: produto | null = await prisma.produto.findUnique({
       where: {
-        id_produto: id.toString(),
+        id_produto: id,
       },
     });
 
