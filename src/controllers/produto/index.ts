@@ -3,6 +3,8 @@ import prisma from '../../config/dbConfig'; // Importe o cliente Prisma corretam
 import { produto } from '@prisma/client'; // Importando o tipo 'produto' gerado pelo Prisma
 import { skip } from '@prisma/client/runtime/library';
 import { takeCoverage } from 'v8';
+import { supabase } from '../../config/supabaseConfig';
+import { CreateProdutoInput } from '../../schemas/produto';
 
 
 export const getProdutos = async (req: Request, res: Response) => {
@@ -43,37 +45,45 @@ export const getProdutoById = async (req: Request, res: Response) => {
 
 export const createProduto = async (req: Request, res: Response) => {
   const { 
-    nome,
-    preco, 
-    descricao, 
-    disponivel, 
-    image, 
-    preco_promocao, 
-    is_promocao,
-    fk_vendedor, 
-    id_categoria,
-  }: 
-  { 
-  nome: string;
-  descricao: string;
-  disponivel: boolean;
-  image: string;
-  is_promocao: boolean;
-  preco: number;
-  preco_promocao?: number;
-  fk_vendedor: string;
-  id_categoria: string;
-} = req.body;
+    nome, preco, descricao, disponivel, preco_promocao, is_promocao, 
+    fk_vendedor, id_categoria 
+  } = req.body as CreateProdutoInput;
+
+  const imageFile = req.file; 
+
   try {
+    
+    const fileName = `${Date.now()}-${imageFile!.originalname}`;
+    const filePath = `produtos/imagens/${fileName}`;
+    const bucketName = 'produtos/imagens';   
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucketName)
+      .upload(filePath, imageFile!.buffer, {
+        contentType: imageFile!.mimetype,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error('Erro no Supabase Storage:', uploadError);
+      res.status(500).send('Erro ao fazer upload da imagem.');
+    }
+
+    const { data: publicURLData } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(filePath);
+
+    const imageUrl = publicURLData.publicUrl;
+
     const result: produto = await prisma.produto.create({
       data: {
         nome,
         descricao,
         disponivel,
-        image,
         is_promocao,
         preco,
         preco_promocao,
+        image: imageUrl, 
         vendedor: {
           connect: { id_vendedor: fk_vendedor }, 
         },
@@ -82,6 +92,7 @@ export const createProduto = async (req: Request, res: Response) => {
         },
       },
     });
+
     res.status(201).json(result);
   } catch (error) {
     console.error('Erro ao criar produto:', error);
