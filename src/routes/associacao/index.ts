@@ -6,6 +6,7 @@ import {
   atualizarAssociacao,
   deletarAssociacao,
 } from '../../controllers/associacao';
+import isAuth from '../../middlewares/isAuth';
 
 const router = express.Router();
 
@@ -86,7 +87,7 @@ router.get('/:id', getAssociacaoById);
  *       404:
  *         description: Associação não encontrada
 */
-router.put('/:id', atualizarAssociacao);
+router.put('/:id', isAuth, atualizarAssociacao);
 
 /**
  * @swagger
@@ -94,6 +95,8 @@ router.put('/:id', atualizarAssociacao);
  *   delete:
  *     summary: Deleta uma associação existente
  *     tags: [Associação]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -104,10 +107,12 @@ router.put('/:id', atualizarAssociacao);
  *     responses:
  *       204:
  *         description: Associação deletada com sucesso
+ *       401:
+ *         description: Token não fornecido ou inválido
  *       404:
  *         description: Associação não encontrada
 */
-router.delete('/:id', deletarAssociacao);
+router.delete('/:id', isAuth, deletarAssociacao);
 
 /**
  * @swagger
@@ -115,6 +120,8 @@ router.delete('/:id', deletarAssociacao);
  *   post:
  *     summary: Cria uma nova associação
  *     tags: [Associação]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -130,8 +137,10 @@ router.delete('/:id', deletarAssociacao);
  *               $ref: '#/components/schemas/Associacao'
  *       400:
  *         description: Erro nos dados enviados
+ *       401:
+ *         description: Token não fornecido ou inválido
  */
-router.post('/cadastro', criarAssociacao);
+router.post('/cadastro', isAuth, criarAssociacao);
 
 export default router;
 
