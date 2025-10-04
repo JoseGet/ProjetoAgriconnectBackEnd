@@ -14,8 +14,7 @@ import cors from 'cors';
 
 const app = express();
 app.use(express.json());
-const port = 3000;
-const host = '0.0.0.0';
+const port = process.env.PORT || 3000;
 
 app.use(cors()); // Habilitando CORS para todas as rotas
 // Rota principal para verificar conexão com o banco
@@ -56,6 +55,6 @@ setupSwagger(app); // Configurando o Swagger
 app.use('/auth', authRoutes); // Configurando as rotas de autenticação
 
 
-app.listen(port, host ,() => {
-  console.log(`Server rodando em http://${host}:${port}`);
+app.listen(port, () => {
+  console.log(`Server rodando em ${port}`);
 });
