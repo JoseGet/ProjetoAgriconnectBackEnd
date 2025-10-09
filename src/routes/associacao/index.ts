@@ -7,6 +7,7 @@ import {
   deletarAssociacao,
 } from '../../controllers/associacao';
 import isAuth from '../../middlewares/isAuth';
+import { isAdmin } from '../../middlewares/isAdmin';
 
 const router = express.Router();
 
@@ -139,8 +140,13 @@ router.delete('/:id', isAuth, deletarAssociacao);
  *         description: Erro nos dados enviados
  *       401:
  *         description: Token não fornecido ou inválido
+ *       403:
+ *         description: Acesso negado - apenas administradores
  */
-router.post('/cadastro', isAuth, criarAssociacao);
+// 👑 Rotas protegidas - APENAS ADMINISTRADORES
+router.post('/cadastro', isAuth, isAdmin, criarAssociacao);
+router.put('/:id', isAuth, isAdmin, atualizarAssociacao);
+router.delete('/:id', isAuth, isAdmin, deletarAssociacao);
 
 export default router;
 

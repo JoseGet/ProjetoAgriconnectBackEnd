@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login } from "../../controllers/auth/authController";
+import { login, loginVendedor } from "../../controllers/auth/authController";
 
 const router = Router();
 
@@ -65,5 +65,61 @@ const router = Router();
  *         description: Credenciais inválidas
  */
 router.post("/login", login);
+
+/**
+ * @swagger
+ * /auth/login/vendedor:
+ *   post:
+ *     summary: Realiza login do vendedor
+ *     tags: [Autenticação]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id_vendedor
+ *               - senha
+ *             properties:
+ *               id_vendedor:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+ *               senha:
+ *                 type: string
+ *                 example: senha123
+ *     responses:
+ *       200:
+ *         description: Login de vendedor bem-sucedido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *                 expiresIn:
+ *                   type: string
+ *                 vendedor:
+ *                   type: object
+ *                   properties:
+ *                     id_vendedor:
+ *                       type: string
+ *                     nome:
+ *                       type: string
+ *                     telefone:
+ *                       type: string
+ *                     tipo_vendedor:
+ *                       type: string
+ *                     associacao:
+ *                       type: object
+ *                       nullable: true
+ *       401:
+ *         description: Credenciais inválidas
+ */
+router.post("/login/vendedor", loginVendedor);
 
 export default router;

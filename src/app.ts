@@ -5,6 +5,7 @@ import atendeUmRoutes from './routes/atende_um'; // Importando as rotas de assoc
 import feiraRoutes from './routes/feira/feiraRoute'; // Importando as rotas de feira
 import pedidoRoutes from './routes/pedido'; // Importando as rotas de pedido
 import produtoRoutes from './routes/produto'; // Importando as rotas de produto
+import categoriaRoutes from './routes/categoria'; // Importando as rotas de categoria
 import vendedorRoutes from './routes/vendedor'; // Importando as rotas de vendedor
 import mercadopagoRoutes from './routes/mercadoPago'; // Importando as rotas de mercadoPago
 import authRoutes from './routes/authRoutes'; // Importando as rotas de autenticação
@@ -56,6 +57,8 @@ console.log('[INFO] Rotas de pedidos carregadas');
 app.use('/feira', feiraRoutes); // Configurando as rotas de feira
 console.log('[INFO] Rotas de feira carregadas');
 app.use('/produto', produtoRoutes); // Configurando as rotas de produto
+app.use('/categoria', categoriaRoutes); // Configurando as rotas de categoria
+console.log('[INFO] Rotas de categoria carregadas');
 console.log('[INFO] Rotas de produto carregadas');
 app.use('/vendedor', vendedorRoutes); // Configurando as rotas de vendedor
 console.log('[INFO] Rotas de vendedor carregadas');
