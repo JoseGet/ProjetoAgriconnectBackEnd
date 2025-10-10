@@ -5,8 +5,11 @@ import { getProdutos,
     updateProduto,
     deleteProduto } from '../../controllers/produto';
 import isAuth from '../../middlewares/isAuth';
-
+import multer from 'multer';
+import { validate } from '../../middlewares/validateSchema';
+import { createProdutoSchema } from '../../schemas/produto';
 const router = express.Router();
+const upload = multer({storage: multer.memoryStorage()})
 
 /**
  * @swagger
@@ -168,7 +171,13 @@ router.get('/:id', getProdutoById);
  *       400:
  *         description: Dados inválidos
  */
+
 router.post('/cadastro', isAuth, createProduto);
+
+router.post('/cadastro',
+     upload.single('image'),
+     validate(createProdutoSchema)
+     ,createProduto);
 
 /**
  * @swagger

@@ -19,6 +19,7 @@ import cors from 'cors';
 const app = express();
 app.use(express.json());
 const port = 3000;
+const host = '0.0.0.0';
 
 app.use(cors()); // Habilitando CORS para todas as rotas
 // Rota principal para verificar conexão com o banco
@@ -59,13 +60,15 @@ console.log('[INFO] Rotas de feira carregadas');
 app.use('/produto', produtoRoutes); // Configurando as rotas de produto
 app.use('/categoria', categoriaRoutes); // Configurando as rotas de categoria
 console.log('[INFO] Rotas de categoria carregadas');
+app.use('/associacao', associacaoRoutes); 
+app.use('/atendeum', atendeUmRoutes); 
+app.use('/pedido', pedidoRoutes); 
+app.use('/feira', feiraRoutes);
+app.use('/produto', produtoRoutes);
 console.log('[INFO] Rotas de produto carregadas');
-app.use('/vendedor', vendedorRoutes); // Configurando as rotas de vendedor
-console.log('[INFO] Rotas de vendedor carregadas');
+app.use('/vendedor', vendedorRoutes); 
 app.use('/mercadopago', mercadopagoRoutes); // Configurando as rotas de mercadoPago
-console.log('[INFO] Rotas de mercadoPago carregadas');
 setupSwagger(app); // Configurando o Swagger
-// Configurando as rotas de autenticação
 app.use('/auth', authRoutes); // Configurando as rotas de autenticação
 console.log('[INFO] Rotas de autenticação carregadas');
 app.use('/refresh', refreshRoutes); // Configurando as rotas de refresh token
@@ -77,6 +80,6 @@ console.log('[INFO] Rotas de webhook carregadas');
 app.use(errorHandler as any);
 
 // Iniciando o servido
-app.listen(port,'0.0.0.0' ,() => {
-  console.log(`Server rodando em http://localhost:${port}`);
+app.listen(port, host ,() => {
+  console.log(`Server rodando em http://${host}:${port}`);
 });
