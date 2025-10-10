@@ -4,6 +4,10 @@ import { getProdutos,
     createProduto,
     updateProduto,
     deleteProduto } from '../../controllers/produto';
+import isAuth from '../../middlewares/isAuth';
+import multer from 'multer';
+import { validate } from '../../middlewares/validateSchema';
+import { createProdutoSchema } from '../../schemas/produto';
 import multer from 'multer';
 import { validate } from '../../middlewares/validateSchema';
 import { createProdutoSchema } from '../../schemas/produto';
@@ -171,6 +175,9 @@ router.get('/:id', getProdutoById);
  *       400:
  *         description: Dados inválidos
  */
+
+router.post('/cadastro', isAuth, createProduto);
+
 router.post('/cadastro',
      upload.single('image'),
      validate(createProdutoSchema)
@@ -229,7 +236,7 @@ router.post('/cadastro',
  *       404:
  *         description: Produto não encontrado
  */
-router.put('/:id', updateProduto);
+router.put('/:id', isAuth, updateProduto);
 
 /**
  * @swagger
@@ -251,6 +258,6 @@ router.put('/:id', updateProduto);
  *       404:
  *         description: Produto não encontrado
  */
-router.delete('/:id', deleteProduto);
+router.delete('/:id', isAuth, deleteProduto);
 
 export default router;
