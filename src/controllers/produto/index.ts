@@ -7,8 +7,8 @@ import { CreateProdutoInput } from '../../schemas/produto';
 
 export const getProdutos = async (req: Request, res: Response) => {
 
-  const limit = parseInt(req.query.limit as string, 10);
-  const skip = parseInt(req.query.skip as string, 20)
+  const limit = parseInt(req.query.limit as string);
+  const skip = parseInt(req.query.offset as string)
 
   const takeValue = isNaN(limit) || limit <= 0 ? 10 : limit; 
   const skipValue = isNaN(skip) || skip < 0 ? 0 : skip;
