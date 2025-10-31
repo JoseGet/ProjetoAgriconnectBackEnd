@@ -27,7 +27,11 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
       return;
     }
 
-    const tokenPayload = { cpf: cliente.cpf, email: cliente.email };
+    const tokenPayload = { 
+      cpf: cliente.cpf, 
+      email: cliente.email,
+      tipo: 'CLIENTE' as const
+    };
     const accessToken = gerarToken(tokenPayload);
     const refreshToken = gerarRefreshToken(tokenPayload);
 
@@ -42,7 +46,8 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
       cliente: {
         cpf: cliente.cpf,
         nome: cliente.nome,
-        email: cliente.email
+        email: cliente.email,
+        tipo: 'CLIENTE'
       }
     });
   } catch (error) {
@@ -88,9 +93,9 @@ export const loginVendedor = async (req: Request, res: Response, next: NextFunct
 
     // Gerar tokens
     const tokenPayload = { 
-      id: vendedor.id_vendedor,
-      tipo: 'vendedor',
-      numero_documento: vendedor.numero_documento
+      id_vendedor: vendedor.id_vendedor,
+      nome: vendedor.nome,
+      tipo: 'VENDEDOR' as const
     };
     const accessToken = gerarToken(tokenPayload);
     const refreshToken = gerarRefreshToken(tokenPayload);
@@ -112,6 +117,7 @@ export const loginVendedor = async (req: Request, res: Response, next: NextFunct
         tipo_vendedor: vendedor.tipo_vendedor,
         tipo_documento: vendedor.tipo_documento,
         numero_documento: vendedor.numero_documento,
+        tipo: 'VENDEDOR',
         associacao: vendedor.associacao ? {
           id_associacao: vendedor.associacao.id_associacao,
           nome: vendedor.associacao.nome

@@ -6,7 +6,8 @@ import {
   atualizarCliente,
   deletarCliente,
   adicionarFavorito,
-  listarFavoritos
+  listarFavoritos,
+  removerFavorito
 } from '../../controllers/cliente';
 import isAuth from '../../middlewares/isAuth';
 
@@ -173,8 +174,13 @@ router.put('/:cpf', isAuth, atualizarCliente);
  */
 router.delete('/:cpf', isAuth, deletarCliente);
 
+// ✅ Adicionar produto aos favoritos
 router.put("/:cpf/favoritos", isAuth, adicionarFavorito);
 
-router.get("/:cpf/favoritos", isAuth, listarFavoritos)
+// ✅ Listar favoritos do cliente
+router.get("/:cpf/favoritos", isAuth, listarFavoritos);
+
+// ✅ Remover produto dos favoritos
+router.delete("/:cpf/favoritos", isAuth, removerFavorito);
 
 export default router;

@@ -4,7 +4,7 @@ import { getProdutos,
     createProduto,
     updateProduto,
     deleteProduto } from '../../controllers/produto';
-import isAuth from '../../middlewares/isAuth';
+import { isAuth, isVendedor, isVendedorOrAdmin } from '../../middlewares/isAuth';
 
 const router = express.Router();
 
@@ -168,7 +168,7 @@ router.get('/:id', getProdutoById);
  *       400:
  *         description: Dados inválidos
  */
-router.post('/cadastro', isAuth, createProduto);
+router.post('/cadastro', isAuth, isVendedor, createProduto);
 
 /**
  * @swagger
