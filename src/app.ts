@@ -15,12 +15,39 @@ import { setupSwagger } from './swagger/swagger';
 import { autenticarToken } from './controllers/auth/authMiddleware';
 import errorHandler from './middlewares/errorHandler';
 import cors from 'cors';
+import dotenv from 'dotenv';
+
+// Carregar variáveis de ambiente
+dotenv.config();
 
 const app = express();
 app.use(express.json());
 const port = 3000;
 
-app.use(cors()); // Habilitando CORS para todas as rotas
+// Configuração do CORS
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Permitir requisições sem origin (mobile apps, Postman, etc)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Origem bloqueada: ${origin}`);
+      callback(new Error('Não permitido pelo CORS'));
+    }
+  },
+  credentials: true, // Permite envio de cookies/auth headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+console.log('[INFO] CORS configurado para:', allowedOrigins);
+
 // Rota principal para verificar conexão com o banco
 /* app.get('/', async (req, res) => {
   try {
