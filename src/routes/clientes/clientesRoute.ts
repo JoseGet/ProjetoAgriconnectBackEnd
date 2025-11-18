@@ -9,6 +9,8 @@ import {
   listarFavoritos
 } from '../../controllers/cliente';
 import isAuth from '../../middlewares/isAuth';
+import { validarCPFParam, validarCPFBody } from '../../middlewares/validarCPF';
+import { validarCPF } from '../../utils/cpfValidator';
 
 const router = express.Router();
 
@@ -49,6 +51,55 @@ router.get('/', listarClientes);
 
 /**
  * @swagger
+ * /clientes/validar-cpf/{cpf}:
+ *   get:
+ *     summary: Valida se um CPF é válido
+ *     tags: [Clientes]
+ *     parameters:
+ *       - in: path
+ *         name: cpf
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: CPF para validar (com ou sem formatação)
+ *     responses:
+ *       200:
+ *         description: CPF válido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 valido:
+ *                   type: boolean
+ *                   example: true
+ *                 cpf:
+ *                   type: string
+ *                   example: "12345678909"
+ *       400:
+ *         description: CPF inválido
+ */
+router.get('/validar-cpf/:cpf', (req, res) => {
+  const { cpf } = req.params;
+  const valido = validarCPF(cpf);
+  
+  if (valido) {
+    res.status(200).json({ 
+      valido: true, 
+      cpf: cpf.replace(/[^\d]/g, ''),
+      message: 'CPF válido' 
+    });
+  } else {
+    res.status(400).json({ 
+      valido: false, 
+      cpf,
+      message: 'CPF inválido' 
+    });
+  }
+});
+
+/**
+ * @swagger
  * /clientes/{cpf}:
  *   get:
  *     summary: Busca um cliente pelo CPF
@@ -80,7 +131,7 @@ router.get('/', listarClientes);
  *       404:
  *         description: Cliente não encontrado
  */
-router.get('/:cpf', listarClientesPorId);
+router.get('/:cpf', validarCPFParam, listarClientesPorId);
 
 /**
  * @swagger
@@ -114,7 +165,7 @@ router.get('/:cpf', listarClientesPorId);
  *       400:
  *         description: Dados inválidos
  */
-router.post('/', criarCliente);
+router.post('/', validarCPFBody, criarCliente);
 
 /**
  * @swagger
@@ -150,7 +201,7 @@ router.post('/', criarCliente);
  *       404:
  *         description: Cliente não encontrado
  */
-router.put('/:cpf', isAuth, atualizarCliente);
+router.put('/:cpf', isAuth, validarCPFParam, atualizarCliente);
 
 /**
  * @swagger
@@ -171,10 +222,10 @@ router.put('/:cpf', isAuth, atualizarCliente);
  *       404:
  *         description: Cliente não encontrado
  */
-router.delete('/:cpf', isAuth, deletarCliente);
+router.delete('/:cpf', isAuth, validarCPFParam, deletarCliente);
 
-router.put("/:cpf/favoritos", isAuth, adicionarFavorito);
+router.put("/:cpf/favoritos", isAuth, validarCPFParam, adicionarFavorito);
 
-router.get("/:cpf/favoritos", isAuth, listarFavoritos)
+router.get("/:cpf/favoritos", isAuth, validarCPFParam, listarFavoritos);
 
 export default router;
