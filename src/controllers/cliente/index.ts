@@ -115,43 +115,43 @@ export const deletarCliente = async (req: Request, res: Response): Promise<void>
 
 export const adicionarFavorito = async (req: Request, res: Response): Promise<void> => {
 
-  const { cliente_cpf } = req.params
+  const { cpf } = req.params;  // ✅ Correto - pega :cpf da URL
   const { produto_id } = req.body;
 
   try {
-    const clienteAtualizado = await prisma.cliente.update({
-      where: { cpf : cliente_cpf },
+    // ✅ Criar um novo registro na tabela favorita_um
+    const novoFavorito = await prisma.favorita_um.create({
       data: {
-        favoritos: {
-          connect: { 
-            cliente_cpf_produto_id: {
-                cliente_cpf: cliente_cpf,
-                produto_id: produto_id
-            }
-          },
-        },
+        cliente_cpf: cpf,
+        produto_id: produto_id
       },
       include: {
-        favoritos: true
+        produto: true
       }
-    })
+    });
 
-    if(clienteAtualizado) {
-      res.status(200).json(clienteAtualizado.favoritos)
-    }
+    res.status(200).json(novoFavorito);
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro ao adicionar produto favorito', error);
+    
+    // Se já existe, retornar erro específico
+    if (error.code === 'P2002') {
+      res.status(409).json({ error: 'Produto já está nos favoritos' });
+      return;
+    }
+    
     res.status(500).json({ error: 'Erro ao adicionar produto favorito.' });
   }
 
 }
 
 export const listarFavoritos = async (req: Request, res: Response): Promise<void> => {
-  const { cliente_cpf } = req.params;
+  const { cpf } = req.params;  // ✅ Correto - pega :cpf da URL
+  
   try {
     const clienteComFavoritos = await prisma.cliente.findUnique({
-      where: {cpf: cliente_cpf},
+      where: { cpf: cpf },
       include: {
         favoritos: {
           select: {
@@ -163,9 +163,31 @@ export const listarFavoritos = async (req: Request, res: Response): Promise<void
 
     if(!clienteComFavoritos) {
       res.status(404).json({ message: "Cliente nao encontrado"})
+      return;
     }
 
-    const produtosFavoritos = clienteComFavoritos?.favoritos.map(fav => fav.produto)
+    const produtosFavoritos = clienteComFavoritos.favoritos.map(fav => {
+      const produto = fav.produto;
+      let imagemLimpa = null;
+      
+      if (produto.image) {
+        const isBase64 = produto.image.startsWith('data:image');
+        const isUrlValida = produto.image.startsWith('http') && 
+                           !produto.image.includes('google.com/url') && 
+                           !produto.image.includes('placeholder.com');
+        
+        imagemLimpa = isBase64 || isUrlValida ? produto.image : null;
+      }
+      
+      return {
+        ...produto,
+        image: imagemLimpa
+      };
+    });
+    
+    console.log('✅ Favoritos encontrados:', produtosFavoritos.length);
+    console.log('📦 Primeiro produto:', produtosFavoritos[0]);
+    
     res.status(200).json(produtosFavoritos);
 
   } catch(error) {
@@ -175,6 +197,44 @@ export const listarFavoritos = async (req: Request, res: Response): Promise<void
 
 }
 
+export const removerFavorito = async (req: Request, res: Response): Promise<void> => {
+  const { cpf } = req.params;
+  const { produto_id } = req.body;
+
+  try {
+    // Buscar o favorito para deletar
+    const favorito = await prisma.favorita_um.findUnique({
+      where: {
+        cliente_cpf_produto_id: {
+          cliente_cpf: cpf,
+          produto_id: produto_id
+        }
+      }
+    });
+
+    if (!favorito) {
+      res.status(404).json({ error: 'Favorito não encontrado' });
+      return;
+    }
+
+    // Deletar o favorito
+    await prisma.favorita_um.delete({
+      where: {
+        cliente_cpf_produto_id: {
+          cliente_cpf: cpf,
+          produto_id: produto_id
+        }
+      }
+    });
+
+    res.status(200).json({ message: 'Favorito removido com sucesso' });
+
+  } catch (error) {
+    console.error('Erro ao remover favorito:', error);
+    res.status(500).json({ error: 'Erro ao remover favorito.' });
+  }
+};
+
 export default {
   listarClientes,
   listarClientesPorId,
@@ -182,5 +242,6 @@ export default {
   atualizarCliente,
   deletarCliente,
   adicionarFavorito,
-  listarFavoritos
+  listarFavoritos,
+  removerFavorito
 };
