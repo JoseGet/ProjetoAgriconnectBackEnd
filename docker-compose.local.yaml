@@ -10,5 +10,20 @@ services:
       - /app/node_modules
     environment:
       NODE_ENV: development
+      DATABASE_URL: ${DATABASE_URL}
+      DIRECT_URL: ${DIRECT_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
+      MERCADO_PAGO_TOKEN: ${MERCADO_PAGO_TOKEN}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - app-network
 
-  
+networks:
+  app-network:
+    driver: bridge

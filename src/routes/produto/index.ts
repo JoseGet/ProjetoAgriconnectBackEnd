@@ -1,4 +1,5 @@
 import express from 'express';
+import { isAuth, isVendedor, isVendedorOrAdmin } from '../../middlewares/isAuth';
 import { getProdutos,
     getProdutoById,
     createProduto,
@@ -6,8 +7,7 @@ import { getProdutos,
     deleteProduto,
     getProdutosByCategoria,
     getProdutosCount,
-    getProdutosByCategoriaCount} from '../../controllers/produto';
-import isAuth from '../../middlewares/isAuth';
+    getProdutosByCategoriaCount } from '../../controllers/produto';
 import multer from 'multer';
 import { validate } from '../../middlewares/validateSchema';
 import { createProdutoSchema } from '../../schemas/produto';
@@ -179,8 +179,7 @@ router.get('/count/categoria/:nome_categoria', getProdutosByCategoriaCount)
  *       400:
  *         description: Dados inválidos
  */
-
-router.post('/cadastro', isAuth, createProduto);
+router.post('/cadastro', isAuth, isVendedor, createProduto);
 
 router.post('/cadastro',
      upload.single('image'),
