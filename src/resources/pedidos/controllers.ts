@@ -5,23 +5,38 @@ import { pedido } from '@prisma/client';
 // GET: Buscar pedidos do usuário autenticado
 export const getPedidos = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userEmail = (req as any).user?.email;
     const userCpf = (req as any).user?.cpf;
     
-    if (!userEmail && !userCpf) {
-      res.status(401).json({ error: 'Usuário não identificado' });
+    if (!userCpf) {
+      res.status(401).json({ error: 'Usuário não identificado ou CPF não disponível' });
       return;
     }
 
-    console.log("Buscando pedidos para usuário:", userEmail || userCpf);
-    const pedidos: pedido[] = await prisma.pedido.findMany({
+    console.log("Buscando pedidos para cliente CPF:", userCpf);
+    const pedidos = await prisma.pedido.findMany({
       where: {
-        fk_cliente: userEmail || userCpf
+        fk_cliente: userCpf
       },
       include: {
         cliente: true,
         feira: true,
         atende_um: true,
+        produtos_no_pedido: {
+          include: {
+            produto: {
+              include: {
+                vendedor: {
+                  select: {
+                    id_vendedor: true,
+                    nome: true,
+                    telefone: true
+                  }
+                },
+                categoria: true
+              }
+            }
+          }
+        }
       }
     });
     res.json(pedidos);
@@ -34,21 +49,37 @@ export const getPedidos = async (req: Request, res: Response): Promise<void> => 
 // GET: Buscar pedido por ID (apenas do usuário autenticado)
 export const getPedidoById = async (req: Request, res: Response): Promise<void> => {
   const id = parseInt(req.params.id);
-  const userEmail = (req as any).user?.email;
   const userCpf = (req as any).user?.cpf;
   
-  if (!userEmail && !userCpf) {
-    res.status(401).json({ error: 'Usuário não identificado' });
+  if (!userCpf) {
+    res.status(401).json({ error: 'Usuário não identificado ou CPF não disponível' });
     return;
   }
 
   try {
-    const pedido: pedido | null = await prisma.pedido.findUnique({
+    const pedido = await prisma.pedido.findUnique({
       where: { pedido_id: id },
       include: {
         cliente: true,
         feira: true,
         atende_um: true,
+        produtos_no_pedido: {
+          include: {
+            produto: {
+              include: {
+                vendedor: {
+                  select: {
+                    id_vendedor: true,
+                    nome: true,
+                    telefone: true,
+                    endereco_venda: true
+                  }
+                },
+                categoria: true
+              }
+            }
+          }
+        }
       }
     });
 
@@ -58,7 +89,7 @@ export const getPedidoById = async (req: Request, res: Response): Promise<void> 
     }
 
     // Verificar se o pedido pertence ao usuário autenticado
-    if (pedido.fk_cliente !== (userEmail || userCpf)) {
+    if (pedido.fk_cliente !== userCpf) {
       res.status(403).json({ error: 'Acesso negado - este pedido não pertence a você' });
       return;
     }
@@ -151,11 +182,10 @@ export const createPedido = async (req: Request, res: Response): Promise<void> =
 export const updatePedido = async (req: Request, res: Response): Promise<void> => {
   const id = parseInt(req.params.id);
   const { data_pedido, fk_feira } = req.body;
-  const userEmail = (req as any).user?.email;
   const userCpf = (req as any).user?.cpf;
   
-  if (!userEmail && !userCpf) {
-    res.status(401).json({ error: 'Usuário não identificado' });
+  if (!userCpf) {
+    res.status(401).json({ error: 'Usuário não identificado ou CPF não disponível' });
     return;
   }
 
@@ -170,7 +200,7 @@ export const updatePedido = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    if (pedidoExistente.fk_cliente !== (userEmail || userCpf)) {
+    if (pedidoExistente.fk_cliente !== userCpf) {
       res.status(403).json({ error: 'Acesso negado - você não pode atualizar este pedido' });
       return;
     }
@@ -199,11 +229,10 @@ export const updatePedido = async (req: Request, res: Response): Promise<void> =
 // DELETE: Deletar pedido (apenas do usuário autenticado)
 export const deletePedido = async (req: Request, res: Response): Promise<void> => {
   const id = parseInt(req.params.id);
-  const userEmail = (req as any).user?.email;
   const userCpf = (req as any).user?.cpf;
   
-  if (!userEmail && !userCpf) {
-    res.status(401).json({ error: 'Usuário não identificado' });
+  if (!userCpf) {
+    res.status(401).json({ error: 'Usuário não identificado ou CPF não disponível' });
     return;
   }
 
@@ -218,7 +247,7 @@ export const deletePedido = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    if (pedidoExistente.fk_cliente !== (userEmail || userCpf)) {
+    if (pedidoExistente.fk_cliente !== userCpf) {
       res.status(403).json({ error: 'Acesso negado - você não pode deletar este pedido' });
       return;
     }
