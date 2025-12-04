@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { validarCPF } from '../utils/cpfValidator';
 
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 /**
  * Middleware para validar CPF nos parâmetros da rota
  * Uso: router.get('/clientes/:cpf', validarCPFParam, ...)
@@ -13,6 +15,12 @@ export function validarCPFParam(req: Request, res: Response, next: NextFunction)
       error: 'CPF não fornecido',
       message: 'O CPF é obrigatório'
     });
+    return;
+  }
+
+  // Em desenvolvimento, aceita qualquer CPF
+  if (isDevelopment) {
+    next();
     return;
   }
 
@@ -39,6 +47,13 @@ export function validarCPFBody(req: Request, res: Response, next: NextFunction):
       error: 'CPF não fornecido',
       message: 'O CPF é obrigatório'
     });
+    return;
+  }
+
+  // Em desenvolvimento, aceita qualquer CPF
+  if (isDevelopment) {
+    console.log(`🔧 [DEV] Validação de CPF desabilitada: ${cpf}`);
+    next();
     return;
   }
 
