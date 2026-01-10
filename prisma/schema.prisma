@@ -13,6 +13,9 @@ model associacao {
   id_associacao String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome          String
   descricao     String
+  image         String?
+  endereco      String?
+  data_hora     String?
   vendedor      vendedor[]
 }
 
@@ -32,18 +35,20 @@ model cliente {
   email        String             @unique
   senha        String             @db.VarChar(100)
   tipo_usuario TipoUsuario        @default(CLIENTE)
+  foto_perfil  String?
   favoritos    favorita_um[]
   pedido       pedido[]
   sacola       sacola_de_compras?
 }
 
 model feira {
-  id_feira Int      @id @default(autoincrement())
-  nome     String
-  descricao String
-  data_hora String
-  image String
-  pedido   pedido[]
+  id_feira    Int      @id @default(autoincrement())
+  nome        String
+  data_hora   String
+  descricao   String
+  image       String?
+  localizacao String?  @db.VarChar(255)
+  pedido      pedido[]
 }
 
 model pedido {
@@ -76,6 +81,7 @@ model produto {
   preco_promocao   Float?
   id_categoria     String            @db.Uuid
   disponivel       Boolean
+  unidade_medida   UnidadeMedida?    @default(UNIDADE)
   favoritado_por   favorita_um[]
   itens_em_pedidos item_pedido[]
   vendedor         vendedor          @relation(fields: [fk_vendedor], references: [id_vendedor], onDelete: NoAction, onUpdate: NoAction, map: "fk_vendedor")
@@ -91,13 +97,13 @@ model vendedor {
   tipo_documento   tipo_documento
   numero_documento String
   id_vendedor      String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  fk_associacao    String?        @db.Uuid
+  fk_associacao    String         @db.Uuid
   senha            String         @db.VarChar(100)
   tipo_usuario     TipoUsuario    @default(VENDEDOR)
   email            String         @unique
   atende_um        atende_um[]
   produto          produto[]
-  associacao       associacao?    @relation(fields: [fk_associacao], references: [id_associacao], onDelete: NoAction, onUpdate: NoAction, map: "fk_associacao")
+  associacao       associacao     @relation(fields: [fk_associacao], references: [id_associacao], onDelete: NoAction, onUpdate: NoAction, map: "fk_associacao")
 }
 
 model item_pedido {
@@ -151,4 +157,11 @@ enum TipoUsuario {
   CLIENTE
   VENDEDOR
   ADMIN
+}
+
+enum UnidadeMedida {
+  UNIDADE
+  KG
+  MACO
+  LITRO
 }
