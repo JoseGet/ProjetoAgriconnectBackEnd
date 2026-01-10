@@ -4,14 +4,18 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model associacao {
   id_associacao String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome          String
   descricao     String
+  image         String?
+  endereco      String?
+  data_hora     String?
   vendedor      vendedor[]
 }
 
@@ -25,35 +29,39 @@ model atende_um {
 }
 
 model cliente {
-  cpf           String        @id @db.VarChar(11)
-  nome          String
-  email         String        @unique
-  telefone      String        @db.VarChar(11)
-  senha         String        @db.VarChar(100)
-  tipo_usuario  TipoUsuario   @default(CLIENTE)
-  
-  favoritos     favorita_um[]
-  pedido        pedido[]
-  sacola        sacola_de_compras?
+  cpf          String             @id @db.VarChar(11)
+  nome         String
+  telefone     String             @db.VarChar(11)
+  email        String             @unique
+  senha        String             @db.VarChar(100)
+  tipo_usuario TipoUsuario        @default(CLIENTE)
+  foto_perfil  String?
+  favoritos    favorita_um[]
+  pedido       pedido[]
+  sacola       sacola_de_compras?
 }
 
 model feira {
-  id_feira Int      @id @default(autoincrement())
-  nome     String
-  endereco String
-  pedido   pedido[]
+  id_feira    Int      @id @default(autoincrement())
+  nome        String
+  data_hora   String
+  descricao   String
+  image       String?
+  localizacao String?  @db.VarChar(255)
+  pedido      pedido[]
 }
 
 model pedido {
-  pedido_id          Int           @id @default(autoincrement())
-  data_pedido        DateTime      @default(dbgenerated("CURRENT_DATE")) @db.Date
-  status             String        @default("PENDENTE")
-  fk_feira           Int?
-  fk_cliente         String        @db.VarChar(11)
-  atende_um          atende_um[]
-  produtos_no_pedido item_pedido[]
-  cliente            cliente       @relation(fields: [fk_cliente], references: [cpf], onDelete: NoAction, onUpdate: NoAction, map: "fk_cliente")
-  feira              feira?        @relation(fields: [fk_feira], references: [id_feira], onDelete: NoAction, onUpdate: NoAction, map: "fk_feira")
+  pedido_id              Int           @id @default(autoincrement())
+  data_pedido            DateTime      @default(dbgenerated("CURRENT_DATE")) @db.Date
+  status                 String        @default("PENDENTE")
+  fk_feira               Int?
+  fk_cliente             String        @db.VarChar(11)
+  mercadopago_payment_id String?       @unique
+  atende_um              atende_um[]
+  produtos_no_pedido     item_pedido[]
+  cliente                cliente       @relation(fields: [fk_cliente], references: [cpf], onDelete: NoAction, onUpdate: NoAction, map: "fk_cliente")
+  feira                  feira?        @relation(fields: [fk_feira], references: [id_feira], onDelete: NoAction, onUpdate: NoAction, map: "fk_feira")
 }
 
 model categoria {
@@ -63,39 +71,39 @@ model categoria {
 }
 
 model produto {
-  id_produto       String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id_produto       String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome             String
   preco            Float
-  fk_vendedor      String        @db.Uuid
+  fk_vendedor      String            @db.Uuid
   descricao        String
   image            String
   is_promocao      Boolean
   preco_promocao   Float?
-  id_categoria     String        @db.Uuid
+  id_categoria     String            @db.Uuid
   disponivel       Boolean
+  unidade_medida   UnidadeMedida?    @default(UNIDADE)
   favoritado_por   favorita_um[]
   itens_em_pedidos item_pedido[]
-  vendedor         vendedor      @relation(fields: [fk_vendedor], references: [id_vendedor], onDelete: NoAction, onUpdate: NoAction, map: "fk_vendedor")
-  categoria        categoria     @relation(fields: [id_categoria], references: [id_categoria])
-  em_sacolas sacola_produtos[] 
+  vendedor         vendedor          @relation(fields: [fk_vendedor], references: [id_vendedor], onDelete: NoAction, onUpdate: NoAction, map: "fk_vendedor")
+  categoria        categoria         @relation(fields: [id_categoria], references: [id_categoria])
+  em_sacolas       sacola_produtos[]
 }
 
 model vendedor {
   nome             String
-  email            String         @unique
   telefone         String         @db.VarChar(15)
   endereco_venda   String
   tipo_vendedor    tipo_vendedor
   tipo_documento   tipo_documento
   numero_documento String
   id_vendedor      String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  fk_associacao    String?        @db.Uuid
+  fk_associacao    String         @db.Uuid
   senha            String         @db.VarChar(100)
   tipo_usuario     TipoUsuario    @default(VENDEDOR)
-  
+  email            String         @unique
   atende_um        atende_um[]
   produto          produto[]
-  associacao       associacao?    @relation(fields: [fk_associacao], references: [id_associacao], onDelete: NoAction, onUpdate: NoAction, map: "fk_associacao")
+  associacao       associacao     @relation(fields: [fk_associacao], references: [id_associacao], onDelete: NoAction, onUpdate: NoAction, map: "fk_associacao")
 }
 
 model item_pedido {
@@ -118,19 +126,19 @@ model favorita_um {
 }
 
 model sacola_de_compras {
-  id_sacola   String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  fk_cliente  String      @db.VarChar(11) @unique
-  cliente     cliente     @relation(fields: [fk_cliente], references: [cpf], map: "fk_cliente", onDelete: NoAction, onUpdate: NoAction)
-  produtos  sacola_produtos[]
+  id_sacola  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fk_cliente String            @unique @db.VarChar(11)
+  cliente    cliente           @relation(fields: [fk_cliente], references: [cpf], onDelete: NoAction, onUpdate: NoAction, map: "fk_cliente")
+  produtos   sacola_produtos[]
 }
 
 model sacola_produtos {
-  id_sacola_pedido String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  quantidade       Int     @default(1) 
-  id_sacola        String  @db.Uuid
-  produto_id       String  @db.Uuid
+  id_sacola_pedido String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quantidade       Int               @default(1)
+  id_sacola        String            @db.Uuid
+  produto_id       String            @db.Uuid
   sacola           sacola_de_compras @relation(fields: [id_sacola], references: [id_sacola])
-  produto          produto @relation(fields: [produto_id], references: [id_produto])
+  produto          produto           @relation(fields: [produto_id], references: [id_produto])
 
   @@unique([id_sacola, produto_id])
 }
@@ -149,4 +157,11 @@ enum TipoUsuario {
   CLIENTE
   VENDEDOR
   ADMIN
+}
+
+enum UnidadeMedida {
+  UNIDADE
+  KG
+  MACO
+  LITRO
 }

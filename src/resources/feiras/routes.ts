@@ -7,8 +7,10 @@ import {
     deleteFeira 
 } from './controllers';
 import isAuth from '../../shared/middlewares/isAuth';
+import multer from 'multer';
 
 const router = express.Router();
+const upload = multer({storage: multer.memoryStorage()})
 
 
 /**
@@ -115,7 +117,7 @@ router.get('/:id', getFeiraById);
  *       400:
  *         description: Dados inválidos
  */
-router.post('/', isAuth, createFeira);
+router.post('/create', isAuth, upload.single('image'), createFeira);
 
 
 /**
