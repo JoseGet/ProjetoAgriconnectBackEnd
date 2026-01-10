@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
-import mercadopago from "../../../services/mercadoPago"; // importando sua instância configurada
+import mercadopago from "../mercadopago/service";; // importando sua instância configurada
 import { Preference } from "mercadopago";
-import prisma from "../../../config/dbConfig";
+import prisma from "/../../config/dbConfig";
 
 interface AuthenticatedRequest extends Request {
+    body: { pedido_id: any; itens: any; };
     user?: { email: string; cpf: string };
 }
 
@@ -49,7 +50,7 @@ export const criarPagamento = async (req: AuthenticatedRequest, res: Response): 
             console.log("✅ Pedido encontrado com", pedido.produtos_no_pedido.length, "produtos");
 
             // Criar items do Mercado Pago a partir do pedido
-            mercadoPagoItems = pedido.produtos_no_pedido.map((item) => {
+            mercadoPagoItems = pedido.produtos_no_pedido.map((item: { produto: any; quantidade: any; }) => {
                 const produto = item.produto;
                 const preco = produto.is_promocao && produto.preco_promocao 
                     ? produto.preco_promocao 
@@ -81,7 +82,7 @@ export const criarPagamento = async (req: AuthenticatedRequest, res: Response): 
             }
 
             mercadoPagoItems = itens.map((item: ItemCarrinho) => {
-                const produto = produtos.find(p => p.id_produto === item.id_produto);
+                const produto = produtos.find((p: { id_produto: string; }) => p.id_produto === item.id_produto);
                 if (!produto) throw new Error(`Produto ${item.id_produto} não encontrado`);
 
                 const preco = produto.is_promocao && produto.preco_promocao 
