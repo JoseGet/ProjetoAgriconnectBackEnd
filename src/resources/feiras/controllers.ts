@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../../config/dbConfig';
 import { feira } from '@prisma/client';
+import { supabase } from '../../config/supabaseConfig';
 
 // Buscar todas as feiras
 export const getFeiras = async (req: Request, res: Response): Promise<void> => {
@@ -33,12 +34,47 @@ export const getFeiraById = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-// Criar nova feira
-export const createFeira = async (req: Request, res: Response): Promise<void> => {
-  const { nome, endereco } = req.body;
+
+export const createFeira = async (req: Request, res: Response) => {
+  const { nome, descricao, data_hora } = req.body;
+  const imageFile = req.file;
+
   try {
+
+    if (!imageFile) {
+      res.status(400).json({ error: 'Imagem da feira é obrigatória' });
+      return;
+    }
+
+    const fileName = `${Date.now()}-${imageFile.originalname}`;
+    const bucketName = 'feiras';
+    const filePath = `imagens/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucketName)
+      .upload(filePath, imageFile.buffer, {
+        contentType: imageFile.mimetype,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error('Erro no Supabase Storage:', uploadError);
+      res.status(500).send('Erro ao fazer upload da imagem.');
+    }
+
+    const { data: publicURLData } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(filePath);
+
+    const imageUrl = publicURLData.publicUrl;
+
     const novaFeira = await prisma.feira.create({
-      data: { nome, endereco },
+      data: {
+        nome,
+        descricao,
+        data_hora,
+        image: imageUrl
+      },
     });
 
     res.status(201).json(novaFeira);
@@ -50,11 +86,11 @@ export const createFeira = async (req: Request, res: Response): Promise<void> =>
 
 // Atualizar feira
 export const updateFeira = async (req: Request, res: Response): Promise<void> => {
-  const { id_feira, nome, endereco } = req.body;
+  const { id_feira, nome, descricao, data_hora, image } = req.body;
   try {
     const feiraAtualizada = await prisma.feira.update({
       where: { id_feira: parseInt(id_feira) },
-      data: { nome, endereco },
+      data: { nome, descricao, data_hora, image },
     });
 
     res.json(feiraAtualizada);
