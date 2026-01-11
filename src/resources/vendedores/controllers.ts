@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../../config/dbConfig';
 import { vendedor } from '@prisma/client';
+import { supabase } from '../../config/supabaseConfig';
 
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -16,7 +17,6 @@ export const getVendedores = async (req: Request, res: Response) => {
   }
 };
 
-// Função para obter um vendedor por ID
 export const getVendedorById = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
@@ -35,18 +35,41 @@ export const getVendedorById = async (req: Request, res: Response) => {
   }
 };
 
-// Função para criar um novo vendedor
 export const createVendedor = async (req: Request, res: Response) => {
+
   const { nome, email, tipo_vendedor, telefone, endereco_venda, tipo_documento, numero_documento, fk_associacao, senha } = req.body;
+  const imageFile = req.file;
 
   try {
-    // Validar campos obrigatórios
+
     if (!email) {
       res.status(400).json({ error: 'Email é obrigatório' });
       return;
     }
 
+    if (!imageFile) {
+      res.status(400).json({ error: 'A imagem do vendedor é obrigatória' });
+      return;
+    }
+
     const senha_segura = await bcrypt.hash(senha, saltRounds);
+
+    const fileName = `${Date.now()}-${imageFile.originalname}`;
+    const filePath = `${fileName}`;
+    const bucketName = 'associacoes/vendedores/imagens';
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucketName)
+      .upload(filePath, imageFile.buffer, {
+        contentType: imageFile.mimetype,
+        upsert: false,
+      });
+
+    const { data: publicURLData } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(filePath);
+
+    const imageUrl = publicURLData.publicUrl;
 
     const result = await prisma.vendedor.create({
       data: {
@@ -60,7 +83,8 @@ export const createVendedor = async (req: Request, res: Response) => {
         numero_documento: numero_documento || null,
         fk_associacao: fk_associacao || null,
         senha: senha_segura,
-        tipo_usuario: 'VENDEDOR'
+        tipo_usuario: 'VENDEDOR',
+        image: imageUrl
       },
     });
 
@@ -84,7 +108,7 @@ export const updateVendedor = async (req: Request, res: Response) => {
       endereco_venda,
       tipo_documento,
       numero_documento,
-      fk_associacao
+      fk_associacao,
     };
 
     // Adicionar email se fornecido

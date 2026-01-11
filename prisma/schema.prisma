@@ -101,6 +101,7 @@ model vendedor {
   senha            String         @db.VarChar(100)
   tipo_usuario     TipoUsuario    @default(VENDEDOR)
   email            String         @unique
+  image            String?
   atende_um        atende_um[]
   produto          produto[]
   associacao       associacao     @relation(fields: [fk_associacao], references: [id_associacao], onDelete: NoAction, onUpdate: NoAction, map: "fk_associacao")

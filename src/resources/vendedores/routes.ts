@@ -6,9 +6,11 @@ import {
   updateVendedor,
   deleteVendedor,
 } from './controllers';
+import multer from 'multer';
 import isAuth from '../../shared/middlewares/isAuth';
 
 const router = express.Router();
+const upload = multer({storage: multer.memoryStorage()})
 
 /**
  * @swagger
@@ -158,7 +160,7 @@ router.get('/:id', getVendedorById);
  *       400:
  *         description: Dados inválidos
  */
-router.post('/cadastro', createVendedor);
+router.post('/cadastro', upload.single('image'), createVendedor);
 
 /**
  * @swagger
