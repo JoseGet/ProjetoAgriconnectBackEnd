@@ -7,7 +7,8 @@ import { getProdutos,
     deleteProduto,
     getProdutosByCategoria,
     getProdutosCount,
-    getProdutosByCategoriaCount } from './controllers';
+    getProdutosByCategoriaCount,
+    produtoAssociacao } from './controllers';
 import multer from 'multer';
 import { validate } from '../../shared/middlewares/validateSchema';
 import { createProdutoSchema } from './schemas';
@@ -260,5 +261,6 @@ router.put('/:id', isAuth, updateProduto);
  *         description: Produto não encontrado
  */
 router.delete('/:id', isAuth, deleteProduto);
+router.get('/associacao/:id', produtoAssociacao)
 
 export default router;

@@ -15,7 +15,7 @@ export const getProdutos = async (req: Request, res: Response) => {
   const skipValue = isNaN(skip) || skip < 0 ? 0 : skip;
 
   try {
-    // Utilizando o Prisma com a tipagem explícita
+    
     const produtos: produto[] = await prisma.produto.findMany();
     console.log("aqui no produtos");
     
@@ -276,6 +276,24 @@ export const deleteProduto = async (req: Request, res: Response) => {
   }
 };
 
+export const produtoAssociacao = async (req: Request, res: Response) => {
+  const {id_associacao} = req.params
+
+  try{
+    const produtosAssociacao = await prisma.produto.findMany({
+      where: {
+        vendedor: {
+          fk_associacao: id_associacao
+        }
+      }
+    })
+    res.json(produtosAssociacao)
+  } catch (error) {
+    console.error('Erro ao buscar produtos:', error);
+    res.status(500).json({ error: 'Erro ao buscar produtos' });
+  }
+}
+
 export default {
   getProdutos,
   getProdutoById,
@@ -284,5 +302,6 @@ export default {
   updateProduto,
   deleteProduto,
   getProdutosCount,
-  getProdutosByCategoriaCount
+  getProdutosByCategoriaCount,
+  produtoAssociacao
 };

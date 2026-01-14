@@ -8,7 +8,11 @@ const saltRounds = 10;
 // Função para obter todos os vendedores
 export const getVendedores = async (req: Request, res: Response) => {
   try {
-    const result: vendedor[] = await prisma.vendedor.findMany();
+    const result: vendedor[] = await prisma.vendedor.findMany({
+      include: {
+        produto: true
+      }
+    });
     console.log("aqui no vendedores");
     res.json(result);
   } catch (error) {
