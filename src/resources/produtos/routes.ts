@@ -261,6 +261,6 @@ router.put('/:id', isAuth, updateProduto);
  *         description: Produto não encontrado
  */
 router.delete('/:id', isAuth, deleteProduto);
-router.get('/associacao/:id', produtoAssociacao)
+router.get('/associacao/:id_associacao', produtoAssociacao)
 
 export default router;
