@@ -11,33 +11,33 @@ export const getProdutos = async (req: Request, res: Response) => {
   const limit = parseInt(req.query.limit as string);
   const skip = parseInt(req.query.offset as string)
 
-  const takeValue = isNaN(limit) || limit <= 0 ? 10 : limit; 
+  const takeValue = isNaN(limit) || limit <= 0 ? 10 : limit;
   const skipValue = isNaN(skip) || skip < 0 ? 0 : skip;
 
   try {
-    
+
     const produtos: produto[] = await prisma.produto.findMany();
     console.log("aqui no produtos");
-    
+
     // Limpar URLs de imagem inválidas (Google redirects, placeholder, etc)
     const produtosLimpos = produtos.map(produto => {
       let imagemLimpa = null;
-      
+
       if (produto.image) {
         const isBase64 = produto.image.startsWith('data:image');
-        const isUrlValida = produto.image.startsWith('http') && 
-                           !produto.image.includes('google.com/url') && 
-                           !produto.image.includes('placeholder.com');
-        
+        const isUrlValida = produto.image.startsWith('http') &&
+          !produto.image.includes('google.com/url') &&
+          !produto.image.includes('placeholder.com');
+
         imagemLimpa = isBase64 || isUrlValida ? produto.image : null;
       }
-      
+
       return {
         ...produto,
         image: imagemLimpa
       };
     });
-    
+
     res.json(produtosLimpos);
   } catch (error) {
     console.error('Erro ao buscar produtos:', error);
@@ -46,9 +46,9 @@ export const getProdutos = async (req: Request, res: Response) => {
 };
 
 export const getProdutosCount = async (req: Request, res: Response) => {
-  try{
+  try {
     const produtosCount = await prisma.produto.count()
-    res.json({total: produtosCount})
+    res.json({ total: produtosCount })
   } catch (error) {
     console.error('Erro ao buscar total de produtos', error);
     res.status(500).send('Erro ao buscar total de produtos');
@@ -56,8 +56,8 @@ export const getProdutosCount = async (req: Request, res: Response) => {
 };
 
 export const getProdutosByCategoriaCount = async (req: Request, res: Response) => {
-  const nome_categoria : string = req.params.nome_categoria;
-  try{
+  const nome_categoria: string = req.params.nome_categoria;
+  try {
     const produtosByCategoriaCount = await prisma.produto.count({
       where: {
         categoria: {
@@ -68,7 +68,7 @@ export const getProdutosByCategoriaCount = async (req: Request, res: Response) =
         },
       },
     })
-    res.json({total: produtosByCategoriaCount})
+    res.json({ total: produtosByCategoriaCount })
   } catch (error) {
     console.error('Erro ao buscar total de produtos', error);
     res.status(500).send('Erro ao buscar total de produtos');
@@ -76,7 +76,7 @@ export const getProdutosByCategoriaCount = async (req: Request, res: Response) =
 };
 
 export const getProdutoById = async (req: Request, res: Response) => {
-  const id : string = req.params.id; ;
+  const id: string = req.params.id;;
   try {
     const result: produto | null = await prisma.produto.findUnique({
       where: {
@@ -90,16 +90,16 @@ export const getProdutoById = async (req: Request, res: Response) => {
     if (result) {
       // Limpar URL de imagem inválida
       let imagemLimpa = null;
-      
+
       if (result.image) {
         const isBase64 = result.image.startsWith('data:image');
-        const isUrlValida = result.image.startsWith('http') && 
-                           !result.image.includes('google.com/url') && 
-                           !result.image.includes('placeholder.com');
-        
+        const isUrlValida = result.image.startsWith('http') &&
+          !result.image.includes('google.com/url') &&
+          !result.image.includes('placeholder.com');
+
         imagemLimpa = isBase64 || isUrlValida ? result.image : null;
       }
-      
+
       const produtoLimpo = {
         ...result,
         image: imagemLimpa
@@ -115,12 +115,12 @@ export const getProdutoById = async (req: Request, res: Response) => {
 };
 
 export const getProdutosByCategoria = async (req: Request, res: Response) => {
-  const nome_categoria : string = req.params.nome_categoria;
+  const nome_categoria: string = req.params.nome_categoria;
 
   const limit = parseInt(req.query.limit as string);
   const skip = parseInt(req.query.offset as string)
 
-  const takeValue = isNaN(limit) || limit <= 0 ? 10 : limit; 
+  const takeValue = isNaN(limit) || limit <= 0 ? 10 : limit;
   const skipValue = isNaN(skip) || skip < 0 ? 0 : skip;
 
   try {
@@ -144,23 +144,23 @@ export const getProdutosByCategoria = async (req: Request, res: Response) => {
 };
 
 export const createProduto = async (req: Request, res: Response) => {
-  const { 
-    nome, preco, descricao, disponivel, preco_promocao, is_promocao, 
-    fk_vendedor, id_categoria 
+  const {
+    nome, preco, descricao, disponivel, preco_promocao, is_promocao,
+    fk_vendedor, id_categoria
   } = req.body as CreateProdutoInput;
 
-  const imageFile = req.file; 
+  const imageFile = req.file;
 
   try {
-    
+
     if (!imageFile) {
       res.status(400).json({ error: 'Imagem do produto é obrigatória' });
       return;
     }
-    
+
     const fileName = `${Date.now()}-${imageFile.originalname}`;
     const filePath = `${fileName}`;
-    const bucketName = 'produtos/imagens';   
+    const bucketName = 'produtos/imagens';
 
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
@@ -188,9 +188,9 @@ export const createProduto = async (req: Request, res: Response) => {
         is_promocao,
         preco,
         preco_promocao,
-        image: imageUrl, 
+        image: imageUrl,
         vendedor: {
-          connect: { id_vendedor: fk_vendedor }, 
+          connect: { id_vendedor: fk_vendedor },
         },
         categoria: {
           connect: { id_categoria: id_categoria }
@@ -277,9 +277,9 @@ export const deleteProduto = async (req: Request, res: Response) => {
 };
 
 export const produtoAssociacao = async (req: Request, res: Response) => {
-  const {id_associacao} = req.params
+  const { id_associacao } = req.params
 
-  try{
+  try {
     const produtosAssociacao = await prisma.produto.findMany({
       where: {
         vendedor: {
