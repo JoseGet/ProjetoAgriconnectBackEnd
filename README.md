@@ -25,7 +25,9 @@ Essa separação facilita a manutenção, melhora a legibilidade do código e to
 
 ## Tecnologias utilizadas
 
-- Node Js ->
+- Node Js -> Ambiente de execução Javascript focado em alta performance e escalabilidade, permitindo o desenvolvimento de serviços de backend rápidos e eficientes.
+- Prisma ORM -> Ferramenta de mapeamento objeto-relacional moderna que facilita a interação com o banco de dados, garantindo maior segurança de tipos e produtividade no desenvolvimento.
+- Token JWT -> Padrão de mercado utilizado para a autenticação segura e transmissão de informações entre as partes através de tokens compactos e auto-contidos.
 
 
 ### Outras tecnologias
