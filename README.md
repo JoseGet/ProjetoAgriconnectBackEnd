@@ -25,9 +25,139 @@ Essa separação facilita a manutenção, melhora a legibilidade do código e to
 
 ## Tecnologias utilizadas
 
-- Node Js -> Ambiente de execução Javascript focado em alta performance e escalabilidade, permitindo o desenvolvimento de serviços de backend rápidos e eficientes.
-- Prisma ORM -> Ferramenta de mapeamento objeto-relacional moderna que facilita a interação com o banco de dados, garantindo maior segurança de tipos e produtividade no desenvolvimento.
-- Token JWT -> Padrão de mercado utilizado para a autenticação segura e transmissão de informações entre as partes através de tokens compactos e auto-contidos.
+# Agriconnect – Backend
+
+Este repositório contém o **backend do projeto Agriconnect**, responsável por prover a lógica de negócio, autenticação, gerenciamento de dados e exposição de APIs consumidas pelo frontend e por aplicações externas.
+
+O Agriconnect é uma plataforma de código aberto dedicada a **auxiliar produtores agrícolas e consumidores de feiras locais**, promovendo a digitalização do pequeno produtor rural, ampliando a visibilidade de seus produtos e facilitando o acesso do consumidor a alimentos frescos e de origem garantida.
+
+O projeto conta com apoio da iniciativa **Mover-se na Web**, desenvolvida pelo **NIC.br** e **Ceweb.br**, que incentiva o uso de tecnologias com alto impacto social e transformação comunitária.
+
+---
+
+## Licença
+
+Este projeto está licenciado sob a **GNU AGPL v3**.  
+Consulte o arquivo `LICENSE` para mais detalhes.
+
+---
+
+## Descrição Geral
+
+O backend do Agriconnect foi desenvolvido com foco em:
+
+- Organização e padronização do código
+- Escalabilidade
+- Segurança
+- Facilidade de manutenção
+- Arquitetura modular
+
+Ele é responsável por:
+
+- Gerenciamento de usuários (Cliente, Vendedor e Admin)
+- Autenticação e autorização
+- Regras de negócio
+- Integração com banco de dados
+- Upload e gerenciamento de arquivos
+- Integração com meios de pagamento
+- Documentação e exposição de APIs REST
+
+---
+
+## Arquitetura
+
+A aplicação segue o padrão **MVC (Model–View–Controller)**:
+
+- **Model:**  
+  Representa as entidades do sistema, regras de negócio e acesso aos dados via ORM.
+
+- **Controller:**  
+  Recebe as requisições HTTP, valida os dados de entrada e aciona os serviços adequados.
+
+- **View:**  
+  No contexto do backend, corresponde às respostas retornadas pela API e consumidas pelo frontend.
+
+Essa separação garante maior clareza, manutenibilidade e escalabilidade do sistema.
+
+---
+
+## Tecnologias Utilizadas
+
+### Stack Principal
+- **Runtime:** Node.js  
+- **Linguagem:** TypeScript  
+- **Framework Web:** Express.js  
+
+---
+
+### Banco de Dados & ORM
+- **Banco de Dados:** PostgreSQL  
+- **ORM Principal:** Prisma (v6.19.1)  
+- **ORM Secundário:** Sequelize (v6.37.6)  
+  - Utilizado em módulos específicos e para compatibilidade com código legado.
+
+---
+
+### Autenticação & Segurança
+- **JWT:** jsonwebtoken  
+- **Hash de Senhas:** bcrypt  
+- **CORS:** cors  
+- **Variáveis de Ambiente:** dotenv  
+
+---
+
+### Validação & Tipagem
+- **Validação de Requisições:** express-validator (v7.2.1)  
+- **Schema Validation:** Zod (v4.1.11)  
+- **Tipagem Estática:** TypeScript (types definidos para todas as dependências)
+
+---
+
+### APIs & Integrações
+- **Mercado Pago:** mercadopago (v2.7.0)  
+  - Processamento de pagamentos.
+- **Supabase:** @supabase/supabase-js  
+  - Banco de dados em produção  
+  - Armazenamento de arquivos (File Storage)  
+  - Autenticação adicional
+
+---
+
+### Upload de Arquivos
+- **Middleware:** multer (v2.0.2)  
+
+---
+
+### Documentação da API
+- **Swagger / OpenAPI**
+  - swagger-jsdoc  
+  - swagger-ui-express  
+- **Geração Automática:** swagger-autogen  
+
+---
+
+### Desenvolvimento & Build
+- **Hot Reload:** nodemon  
+- **Execução TypeScript:** ts-node  
+- **Compilação:** TypeScript Compiler (tsc)  
+- **Parsing de Requisições:** body-parser  
+
+---
+
+### Infraestrutura & Deploy
+- **Docker & Docker Compose**  
+- **Render:** Hospedagem do backend  
+- **Supabase:** Banco de dados e armazenamento em produção  
+
+---
+
+## Estrutura de Pastas
+
+A aplicação é organizada de forma **modular**, baseada nos domínios do sistema.
+
+Exemplo da estrutura de um módulo (Produtos):
+
+
 
 
 ### Outras tecnologias
