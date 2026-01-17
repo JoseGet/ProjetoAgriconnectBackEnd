@@ -23,63 +23,6 @@ A aplicação segue a arquitetura **MVC (Model–View–Controller)**, que separ
 
 Essa separação facilita a manutenção, melhora a legibilidade do código e torna o sistema mais escalável.
 
-## Tecnologias utilizadas
-
-# Agriconnect – Backend
-
-Este repositório contém o **backend do projeto Agriconnect**, responsável por prover a lógica de negócio, autenticação, gerenciamento de dados e exposição de APIs consumidas pelo frontend e por aplicações externas.
-
-O Agriconnect é uma plataforma de código aberto dedicada a **auxiliar produtores agrícolas e consumidores de feiras locais**, promovendo a digitalização do pequeno produtor rural, ampliando a visibilidade de seus produtos e facilitando o acesso do consumidor a alimentos frescos e de origem garantida.
-
-O projeto conta com apoio da iniciativa **Mover-se na Web**, desenvolvida pelo **NIC.br** e **Ceweb.br**, que incentiva o uso de tecnologias com alto impacto social e transformação comunitária.
-
----
-
-## Licença
-
-Este projeto está licenciado sob a **GNU AGPL v3**.  
-Consulte o arquivo `LICENSE` para mais detalhes.
-
----
-
-## Descrição Geral
-
-O backend do Agriconnect foi desenvolvido com foco em:
-
-- Organização e padronização do código
-- Escalabilidade
-- Segurança
-- Facilidade de manutenção
-- Arquitetura modular
-
-Ele é responsável por:
-
-- Gerenciamento de usuários (Cliente, Vendedor e Admin)
-- Autenticação e autorização
-- Regras de negócio
-- Integração com banco de dados
-- Upload e gerenciamento de arquivos
-- Integração com meios de pagamento
-- Documentação e exposição de APIs REST
-
----
-
-## Arquitetura
-
-A aplicação segue o padrão **MVC (Model–View–Controller)**:
-
-- **Model:**  
-  Representa as entidades do sistema, regras de negócio e acesso aos dados via ORM.
-
-- **Controller:**  
-  Recebe as requisições HTTP, valida os dados de entrada e aciona os serviços adequados.
-
-- **View:**  
-  No contexto do backend, corresponde às respostas retornadas pela API e consumidas pelo frontend.
-
-Essa separação garante maior clareza, manutenibilidade e escalabilidade do sistema.
-
----
 
 ## Tecnologias Utilizadas
 
@@ -148,16 +91,6 @@ Essa separação garante maior clareza, manutenibilidade e escalabilidade do sis
 - **Docker & Docker Compose**  
 - **Render:** Hospedagem do backend  
 - **Supabase:** Banco de dados e armazenamento em produção  
-
----
-
-## Estrutura de Pastas
-
-A aplicação é organizada de forma **modular**, baseada nos domínios do sistema.
-
-Exemplo da estrutura de um módulo (Produtos):
-
-
 
 
 ### Outras tecnologias
