@@ -19,7 +19,7 @@ A aplicação segue a arquitetura **MVC (Model–View–Controller)**, que separ
 
 - **Controller**: atua como intermediário entre as requisições do cliente e o sistema, recebendo as requisições, processando-as e retornando as respostas adequadas.
 
-- **View**: no contexto do backend, corresponde principalmente às respostas retornadas pela API (geralmente em formato JSON), que são consumidas pelo frontend.
+- **View**: no contexto do backend, corresponde principalmente às respostas retornadas pela API que são consumidas.
 
 Essa separação facilita a manutenção, melhora a legibilidade do código e torna o sistema mais escalável.
 
