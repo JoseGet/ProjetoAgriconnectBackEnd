@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../../config/dbConfig'; // PrismaClient instanciado
 import { cliente } from '@prisma/client'; // Importando o tipo cliente do Prisma
+import { supabase } from '../../config/supabaseConfig';
 import { where } from 'sequelize';
 
 const bcrypt = require('bcrypt');
@@ -37,17 +38,54 @@ export const listarClientesPorId = async (req: Request, res: Response): Promise<
 };
 
 export const criarCliente = async (req: Request, res: Response): Promise<void> => {
-  const { cpf, nome, email, telefone, senha} = req.body;
+  const { cpf, nome, email, telefone, senha } = req.body;
   if (!cpf || !nome || !email || !telefone || !senha) {
     res.status(400).send('Todos os campos são obrigatórios');
     return;
   }
+
+  const imageFile = req.file;
+  let imageUrl: string | null = null;
+
   try {
+
+    if (imageFile) {
+      const fileName = `${Date.now()}-${imageFile.originalname}`;
+      const filePath = `${fileName}`;
+      const bucketName = 'clientes/imagens';
+
+      const { error: uploadError } = await supabase.storage
+        .from(bucketName)
+        .upload(filePath, imageFile.buffer, {
+          contentType: imageFile.mimetype,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error('Erro no Supabase Storage:', uploadError);
+        res.status(500).send('Erro ao fazer upload da imagem.');
+        return; // Importante parar a execução aqui
+      }
+
+      const { data: publicURLData } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(filePath);
+
+      imageUrl = publicURLData.publicUrl;
+    }
+
     console.log("aqui no criar cliente");
     const senha_segura = await bcrypt.hash(senha, saltRounds);
 
     const novoCliente: cliente = await prisma.cliente.create({
-      data: { cpf, nome, email, telefone, senha: senha_segura},
+      data: {
+        cpf,
+        nome,
+        email,
+        telefone,
+        senha: senha_segura,
+        foto_perfil : imageUrl
+      },
 
     });
     console.log('Cliente criado:', novoCliente);
@@ -66,11 +104,11 @@ export const atualizarCliente = async (req: Request, res: Response): Promise<voi
   try {
     // Preparar dados para atualização
     const dataToUpdate: any = {};
-    
+
     if (nome !== undefined) dataToUpdate.nome = nome;
     if (email !== undefined) dataToUpdate.email = email;
     if (telefone !== undefined) dataToUpdate.telefone = telefone;
-    
+
     // Apenas fazer hash da senha se ela for fornecida
     if (senha !== undefined && senha !== '') {
       const senha_segura = await bcrypt.hash(senha, saltRounds);
@@ -134,13 +172,13 @@ export const adicionarFavorito = async (req: Request, res: Response): Promise<vo
 
   } catch (error: any) {
     console.error('Erro ao adicionar produto favorito', error);
-    
+
     // Se já existe, retornar erro específico
     if (error.code === 'P2002') {
       res.status(409).json({ error: 'Produto já está nos favoritos' });
       return;
     }
-    
+
     res.status(500).json({ error: 'Erro ao adicionar produto favorito.' });
   }
 
@@ -148,7 +186,7 @@ export const adicionarFavorito = async (req: Request, res: Response): Promise<vo
 
 export const listarFavoritos = async (req: Request, res: Response): Promise<void> => {
   const { cpf } = req.params;  // ✅ Correto - pega :cpf da URL
-  
+
   try {
     const clienteComFavoritos = await prisma.cliente.findUnique({
       where: { cpf: cpf },
@@ -161,38 +199,38 @@ export const listarFavoritos = async (req: Request, res: Response): Promise<void
       }
     })
 
-    if(!clienteComFavoritos) {
-      res.status(404).json({ message: "Cliente nao encontrado"})
+    if (!clienteComFavoritos) {
+      res.status(404).json({ message: "Cliente nao encontrado" })
       return;
     }
 
     const produtosFavoritos = clienteComFavoritos.favoritos.map((fav: any) => {
       const produto = fav.produto;
       let imagemLimpa = null;
-      
+
       if (produto.image) {
         const isBase64 = produto.image.startsWith('data:image');
-        const isUrlValida = produto.image.startsWith('http') && 
-                           !produto.image.includes('google.com/url') && 
-                           !produto.image.includes('placeholder.com');
-        
+        const isUrlValida = produto.image.startsWith('http') &&
+          !produto.image.includes('google.com/url') &&
+          !produto.image.includes('placeholder.com');
+
         imagemLimpa = isBase64 || isUrlValida ? produto.image : null;
       }
-      
+
       return {
         ...produto,
         image: imagemLimpa
       };
     });
-    
+
     console.log('✅ Favoritos encontrados:', produtosFavoritos.length);
     console.log('📦 Primeiro produto:', produtosFavoritos[0]);
-    
+
     res.status(200).json(produtosFavoritos);
 
-  } catch(error) {
+  } catch (error) {
     console.error('Erro ao listar favoritos: ', error)
-    res.status(500).json({ message: 'Erro ao listar favoritos. '})
+    res.status(500).json({ message: 'Erro ao listar favoritos. ' })
   }
 
 }
