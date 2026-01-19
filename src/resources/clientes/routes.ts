@@ -12,8 +12,10 @@ import {
 import isAuth from '../../shared/middlewares/isAuth';
 import { validarCPFParam, validarCPFBody } from '../../shared/middlewares/validarCPF';
 import { validarCPF } from '../../shared/utils/cpfValidator';
+import multer from 'multer';
 
 const router = express.Router();
+const upload = multer({storage: multer.memoryStorage()})
 
 /**
  * @swagger
@@ -166,7 +168,7 @@ router.get('/:cpf', validarCPFParam, listarClientesPorId);
  *       400:
  *         description: Dados inválidos
  */
-router.post('/', validarCPFBody, criarCliente);
+router.post('/', upload.single('foto_perfil'), validarCPFBody, criarCliente);
 
 /**
  * @swagger
