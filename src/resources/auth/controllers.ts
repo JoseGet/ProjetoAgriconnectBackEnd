@@ -55,7 +55,8 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
           nome: cliente.nome,
           email: cliente.email,
           telefone: cliente.telefone,
-          tipo: cliente.tipo_usuario
+          tipo: cliente.tipo_usuario,
+          foto_perfil: cliente.foto_perfil
         }
       });
       return;
