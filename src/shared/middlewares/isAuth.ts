@@ -20,7 +20,7 @@ export const isAuth = (req: Request, res: Response, next: NextFunction): void =>
   const payload = verifyToken(token);
 
   if (!payload) {
-    res.status(403).json({ error: 'Token inválido ou expirado' });
+    res.status(401).json({ error: 'Token inválido ou expirado' });
     return;
   }
 
